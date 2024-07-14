@@ -62,6 +62,43 @@ inline Vector2 v2_div(Vector2 a, Vector2 b) {
 inline Vector2 v2_divf(Vector2 a, float32 s) {
 	return v2_div(a, v2(s, s));
 }
+inline bool v2_equals(Vector2 a, Vector2 b) {
+    if (a.x == b.x && a.y == b.y) { return true; }
+    return false;
+}
+// inline Vector2 v2_lerp(Vector2 a, Vector2 b) {   
+//     assert();
+//     return v2(0,0);
+// }
+inline Vector2 v2_move_towards(Vector2 a, Vector2 b, float speed) {
+    if (a.x != b.x) {
+        if (a.x < b.x) {
+            a.x += speed;
+            if (a.x > b.x) {
+                a.x = b.x;
+            }
+        } else if (a.x > b.x) {
+            a.x -= speed;
+            if (a.x < b.x) {
+                a.x = b.x;
+            }
+        }
+    }
+    if (a.y != b.y) {
+        if (a.y < b.y) {
+            a.y += speed;
+            if (a.y > b.y) {
+                a.y = b.y;
+            }
+        } else if (a.y > b.y) {
+            a.y -= speed;
+            if (a.y < b.y) {
+                a.y = b.y;
+            }
+        }
+    }
+    return a;   
+}
 inline Vector3 v3_add(Vector3 a, Vector3 b) {
 	Vector4 a128 = v4(a.x, a.y, a.z, 0.0);
 	Vector4 b128 = v4(b.x, b.y, b.z, 0.0);

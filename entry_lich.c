@@ -22,6 +22,7 @@ int entry(int argc, char **argv) {
     float64 second_counter = 0.0;
     s32 frame_count = 0;
     float64 last_time = os_get_current_time_in_seconds();
+    float64 last_fixed_time = os_get_current_time_in_seconds();
     
     //
     // Player Setup
@@ -29,11 +30,14 @@ int entry(int argc, char **argv) {
     Gfx_Image* character = load_image_from_disk(fixed_string("assets/Character.png"), get_heap_allocator());
     assert(character, "Character sprite didn't load properly.");
     Player player = {
-        character, //Sprite sheet
+        character, // Sprite sheet
         20,        // max heal
         20,        // health
+        1.0,       // movement speed
         v2(0,0),   // position
-        IDLE       // state
+        v2(0,0),   // velocity
+        IDLE,      // state
+        0          // stun timer
     };
     Player *p_player = &player;
 
@@ -64,8 +68,9 @@ int entry(int argc, char **argv) {
     //
     // Game loop
     //
-    
-        player_update(p_player, delta_t);      
+
+
+        player_update(p_player, delta_t);
 		gfx_update();
 
     //
