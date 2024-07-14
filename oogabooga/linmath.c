@@ -62,7 +62,6 @@ inline Vector2 v2_div(Vector2 a, Vector2 b) {
 inline Vector2 v2_divf(Vector2 a, float32 s) {
 	return v2_div(a, v2(s, s));
 }
-
 inline Vector3 v3_add(Vector3 a, Vector3 b) {
 	Vector4 a128 = v4(a.x, a.y, a.z, 0.0);
 	Vector4 b128 = v4(b.x, b.y, b.z, 0.0);
