@@ -1,81 +1,37 @@
-enum Player_State {
-    IDLE,
-    STUNNED
-};
+Entity *setup_player(Vector2 spawn_location);
+int player_update(Entity *player);
 
-typedef struct {
-    Gfx_Image* sprite_sheet;
-    char max_health;
-    char health;
-    float32 movement_speed;
-    Vector2 position;
-    Vector2 velocity;
-    enum Player_State state;
-    float32 stun_timer;
-}Player;
+Entity *setup_player(Vector2 spawn_location) {
+    Collision_Rect col;
+    col.origin = spawn_location;
+    col.p1 = v2(-0.5,-0.5);
+    col.p2 = v2(0.5, -0.5);
+    col.p3 = v2(0.5,0.5);
+    col.p4 = v2(-0.5,0.5);
 
-int unstun_player(Player *player) {
-    if (player->state != STUNNED) {
-        return 1;
-    }
+    Entity player, *p_player;
+    player.position        = spawn_location;
+    player.collision_shape = col;
+    player.health          = 10;
+    player.move_speed      = 1.0f;
 
-    player->stun_timer = 0;
-    player->state = IDLE;
-    return 0;
+    player.max_cells    = v2(5,5);
+    player.current      = v2(0,0);
+    player.sprite_sheet = load_image_from_disk(fixed_string("assets/Character.png"), get_heap_allocator());
+    assert(player.sprite_sheet, "Spritesheet didnt laod properly")
+
+    p_player = &player;
+
+    return p_player;
 }
 
-int stun_player(Player *player, float32 duration) {
-    player->stun_timer = duration;
-    player->state = STUNNED;
-    return 0;
-}
+int player_update(Entity *player) {
+    Vector2 scale = v2(0.25, 0.25);
 
-int player_movement(Player *player, float64 delta_t) {
-    float32 movement_speed = player->movement_speed;
-    Vector2 input_axis = v2(0,0);
-   
-    if (player->state != STUNNED) {
-        if (is_key_down('A')) {
-            input_axis.x -= 1.0;
-        }
-        if (is_key_down('D')) {
-            input_axis.x += 1.0;
-        }
-        if (is_key_down('S')) {
-            input_axis.y -= 1.0;
-        }
-        if (is_key_down('W')) {
-            input_axis.y += 1.0;
-        }
-        if (is_key_down(KEY_SPACEBAR)) {
-            movement_speed *= 20.0;
-            stun_player(player, 1);
-        }
-    }
-
-    input_axis = v2_normalize(input_axis);
+    Matrix4 xform = m4_scalar(1.0);
+    xform = m4_translate(xform, v3(player->position.x, player->position.y, 0));
     
-    if (v2_equals(input_axis, v2(0,0))) {
-        player->velocity = v2_move_towards(player->velocity, v2(0,0), movement_speed * delta_t);
-    } else {
-        player->velocity = v2_mulf(input_axis, movement_speed * delta_t);
-    }   
-    player->position = v2_add(player->position, player->velocity);
-
-    return 0;
-}
-
-int player_update(Player *player, float64 delta_t) {
-    player->stun_timer -= delta_t;
-    if (player->stun_timer <= 0) {
-        unstun_player(player);
-    }
-    
-    player_movement(player, delta_t);
-
-    Matrix4 image_xform = m4_scalar(1.0);
-    image_xform         = m4_translate(image_xform, v3(player->position.x, player->position.y, 0));
-    Draw_Quad *sprite = draw_image_xform(player->sprite_sheet, image_xform, v2(1.0f, 1.0f), COLOR_WHITE);
+    draw_image_xform(player->sprite_sheet, xform, scale, COLOR_WHITE);
 
     return 0;
 }
